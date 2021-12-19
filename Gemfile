@@ -9,9 +9,16 @@ gem 'rails', '~> 6.0.3', '>= 6.0.3.3'
 gem 'bootsnap', '>= 1.4.2', require: false
 gem 'pg', '>= 0.18', '< 2.0'
 gem 'puma', '~> 4.1'
-
+gem 'foundation-rails'
+gem 'autoprefixer-rails'
+gem 'inky-rb', require: 'inky'
+# Stylesheet inlining for email
+gem 'premailer-rails'
 # Auth
 gem 'devise_token_auth', '~> 1.1.4'
+
+# Cors
+gem 'rack-cors', '~> 1.1.1'
 
 group :development, :test do
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
