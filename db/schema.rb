@@ -10,13 +10,45 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_12_19_215714) do
+ActiveRecord::Schema.define(version: 2021_12_19_231034) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "categories", force: :cascade do |t|
     t.string "name"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "games", force: :cascade do |t|
+    t.integer "mode"
+    t.datetime "release_date"
+    t.string "developer"
+    t.bigint "system_requirement_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["system_requirement_id"], name: "index_games_on_system_requirement_id"
+  end
+
+  create_table "products", force: :cascade do |t|
+    t.string "name"
+    t.text "description"
+    t.decimal "price", precision: 10, scale: 2
+    t.string "productable_type", null: false
+    t.bigint "productable_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["productable_type", "productable_id"], name: "index_products_on_productable_type_and_productable_id"
+  end
+
+  create_table "system_requirements", force: :cascade do |t|
+    t.string "name"
+    t.string "operational_system"
+    t.string "storage"
+    t.string "processor"
+    t.string "memory"
+    t.string "video_board"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
@@ -45,4 +77,5 @@ ActiveRecord::Schema.define(version: 2021_12_19_215714) do
     t.index ["uid", "provider"], name: "index_users_on_uid_and_provider", unique: true
   end
 
+  add_foreign_key "games", "system_requirements"
 end
