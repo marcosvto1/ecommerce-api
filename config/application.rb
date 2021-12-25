@@ -38,5 +38,7 @@ module EcommerceApi
 
     config.api_only = true
 
+    config.autoload_paths += %w["#{config.root}/app/validadors/"]
+
   end
 end
