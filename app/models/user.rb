@@ -8,6 +8,8 @@ class User < ActiveRecord::Base
   validates :name, presence: true
   validates :profile, presence: true
 
-  enum profile: { admin: 0, client: 1}
+  enum profile: { admin: 0, client: 1 }
 
+  include NameSearchable
+  include Paginatable
 end
