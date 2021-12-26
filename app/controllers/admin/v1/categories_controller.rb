@@ -6,13 +6,19 @@ module Admin::V1
 
     def create
       @category = Category.new
-      @category.attributes = category_param
+      @category.attributes = category_params
       save_category!
     end
 
-    private 
+    def update
+      @category = Category.find(params[:id])
+      @category.attributes = category_params
+      save_category!
+    end
 
-    def category_param
+    private
+
+    def category_params
       return {} unless params.has_key?(:category)
 
       params.require(:category).permit :name
