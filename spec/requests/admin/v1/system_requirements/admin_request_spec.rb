@@ -9,7 +9,7 @@ RSpec.describe "Admin::V1::SystemRequirement as :admin", type: :request do
 
     it "should returns all system_requirements" do
       get url, headers: auth_header(user)
-      expect(body_json["system_requirements"]).to contain_exactly *system_requirements.as_json(only: %i(id name))
+      expect(body_json["system_requirements"]).to contain_exactly *system_requirements.as_json(only: %i(id name processor memory operational_system video_board))
     end
 
     it "should returns status ok" do
@@ -42,7 +42,21 @@ RSpec.describe "Admin::V1::SystemRequirement as :admin", type: :request do
       end
     end
 
-    context "when valida params" do
+    context "when valid params" do
+      let(:correct_params) do
+        { system_requirement: attributes_for(:system_requirement) }.to_json
+      end
+
+      it "should create an new system_requirement" do
+        expect do
+          post url, headers: auth_header(user), params: correct_params
+        end.to change(SystemRequirement, :count).by(1)
+      end
+
+      it "should return status ok" do
+        post url, headers: auth_header(user), params: correct_params
+        expect(response).to have_http_status(:ok)
+      end
     end
   end
 end

@@ -18,6 +18,7 @@ module Admin::V1
 
     def save_system_requirement!
       @system_requirement.save!
+      render :show
     rescue
       render_error fields: @system_requirement.errors.messages
     end
