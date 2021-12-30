@@ -17,6 +17,12 @@ module Admin::V1
       save_system_requirement!
     end
 
+    def destroy
+      @system_requirement.destroy!
+    rescue
+      render_error fields: @system_requirement.errors.messages
+    end
+
     private
 
     def load_system_requirement

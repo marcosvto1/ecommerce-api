@@ -89,6 +89,47 @@ RSpec.describe "Admin::V1::SystemRequirement as :admin", type: :request do
     end
 
     describe "when incorrect params" do
+      let(:incorret_params) do
+        { system_requirement: attributes_for(:system_requirement, name: nil, storage: nil) }.to_json
+      end
+
+      it "should does not update system_requirement" do
+        old_system_requirement = system_requirement.name
+        patch url, headers: auth_header(user), params: incorret_params
+        system_requirement.reload
+        expect(system_requirement.name).to eq old_system_requirement
+      end
+
+      it "should returns unprocessable_entiy status" do
+        patch url, headers: auth_header(user), params: incorret_params
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it "should returns errors messages" do
+        patch url, headers: auth_header(user), params: incorret_params
+        expect(body_json["errors"]["fields"]).to have_key("name")
+      end
+    end
+  end
+
+  describe "DELETE /system_requirements/:id" do
+    let!(:system_requirement) { create(:system_requirement) }
+    let(:url) { "/admin/v1/system_requirements/#{system_requirement.id}" }
+
+    it "should remove system_requirement" do
+      expect do
+        delete url, headers: auth_header(user)
+      end.to change(SystemRequirement, :count).by(-1)
+    end
+
+    it "should returns statys :no_content" do
+      delete url, headers: auth_header(user)
+      expect(response).to have_http_status(:no_content)
+    end
+
+    it "should does not returns content in body" do
+      delete url, headers: auth_header(user)
+      expect(body_json).to_not be_present
     end
   end
 end
