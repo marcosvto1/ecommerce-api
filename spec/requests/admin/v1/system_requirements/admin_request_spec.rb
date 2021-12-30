@@ -59,4 +59,36 @@ RSpec.describe "Admin::V1::SystemRequirement as :admin", type: :request do
       end
     end
   end
+
+  context "PUT /system_requirements" do
+    let(:system_requirement) { create(:system_requirement) }
+    let(:url) { "/admin/v1/system_requirements/#{system_requirement.id}" }
+
+    describe "when correct params" do
+      let(:correct_params) do
+        { system_requirement: attributes_for(:system_requirement, name: "Nova System") }.to_json
+      end
+
+      it "should update system_requirement" do
+        patch url, headers: auth_header(user), params: correct_params
+        system_requirement.reload
+        expect(system_requirement.name).to eq "Nova System"
+      end
+
+      it "should returns status :ok" do
+        patch url, headers: auth_header(user), params: correct_params
+        expect(response).to have_http_status(:ok)
+      end
+
+      it "should returns system_requirement updated" do
+        patch url, headers: auth_header(user), params: correct_params
+        system_requirement.reload
+        expected_system_requirement = system_requirement.as_json except: %i(created_at updated_at)
+        expect(body_json["system_requirement"]).to eq expected_system_requirement
+      end
+    end
+
+    describe "when incorrect params" do
+    end
+  end
 end
