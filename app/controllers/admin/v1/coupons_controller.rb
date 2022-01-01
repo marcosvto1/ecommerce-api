@@ -1,5 +1,7 @@
 module Admin::V1
   class CouponsController < ApiController
+    before_action :load_coupon, only: %i[update destroy]
+
     def index
       @coupons = Coupon.all
     end
@@ -10,7 +12,16 @@ module Admin::V1
       save_coupon!
     end
 
+    def update
+      @coupon.attributes = coupon_params
+      save_coupon!
+    end
+
     private
+
+    def load_coupon
+      @coupon = Coupon.find(params[:id])
+    end
 
     def save_coupon!
       @coupon.save!
