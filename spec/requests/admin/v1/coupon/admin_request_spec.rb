@@ -17,4 +17,19 @@ RSpec.describe "Admin::V1::Coupon as :admin", type: :request do
       expect(response).to have_http_status(:ok)
     end
   end
+
+  context "POST /coupons" do
+    let(:url) { "/admin/v1/coupons" }
+    context "when correct params" do
+      let(:correct_params) { { coupon: attributes_for(:coupon) }.to_json }
+
+      it "should create an new coupon" do
+        expect do
+          post url, headers: auth_header(user), params: correct_params
+        end.to change(Coupon, :count).by(1)
+      end
+    end
+    context "when invalid params" do
+    end
+  end
 end
