@@ -148,6 +148,11 @@ RSpec.describe "Admin::V1::Coupon as :admin", type: :request do
           delete url, headers: auth_header(user)
         end.to change(Coupon, :count).by(-1)
       end
+
+      it "should returns status no_content if delete performed successfully" do
+        delete url, headers: auth_header(user)
+        expect(response).to have_http_status(:no_content)
+      end
     end
   end
 end
