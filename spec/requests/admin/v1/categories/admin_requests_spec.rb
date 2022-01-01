@@ -57,7 +57,9 @@ RSpec.describe "Admin::V1::Categories as :admin", type: :request do
 
       it "returns error messages" do
         post url, headers: auth_header(user), params: category_invalid_param
+        puts body_json["errors"]["fields"]
         expect(body_json["errors"]["fields"]).to have_key("name")
+        #expect(body_json["errors"]["fields"]).to have_key("processor")
       end
 
       it "returns unprocessable_entiy status" do
