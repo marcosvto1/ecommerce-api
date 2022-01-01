@@ -2,6 +2,7 @@ require "rails_helper"
 
 RSpec.describe "Admin::V1::Coupon as :admin", type: :request do
   let(:user) { create(:user) }
+  let(:only_attr) { %i(id code discount_value due_date status) }
 
   context "GET /coupons" do
     let(:url) { "/admin/v1/coupons" }
@@ -27,6 +28,17 @@ RSpec.describe "Admin::V1::Coupon as :admin", type: :request do
         expect do
           post url, headers: auth_header(user), params: correct_params
         end.to change(Coupon, :count).by(1)
+      end
+
+      it "should returns an new coupon created" do
+        post url, headers: auth_header(user), params: correct_params
+        expect_coupon = Coupon.last.as_json(only: only_attr)
+        expect(body_json["coupon"]).to eq expect_coupon
+      end
+
+      it "should retuns success status" do
+        post url, headers: auth_header(user), params: correct_params
+        expect(response).to have_http_status(:ok)
       end
     end
     context "when invalid params" do

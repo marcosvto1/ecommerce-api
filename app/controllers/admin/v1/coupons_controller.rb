@@ -7,12 +7,17 @@ module Admin::V1
     def create
       @coupon = Coupon.new
       @coupon.attributes = coupon_params
-      @coupon.save!
-    rescue
-      render_error fields: @coupon.errors.messages
+      save_coupon!
     end
 
     private
+
+    def save_coupon!
+      @coupon.save!
+      render :show
+    rescue
+      render_error fields: @coupon.errors.messages
+    end
 
     def coupon_params
       return {} unless params.has_key? :coupon
