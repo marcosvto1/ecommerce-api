@@ -115,11 +115,39 @@ RSpec.describe "Admin::V1::Coupon as :admin", type: :request do
         end
       end
 
-      # context "when correct params" do
-      #   let(:correct_params) { { coupon: attributes_for(:coupon, code: "NEWYEAR10") }.to_json }
+      context "when correct params" do
+        let(:correct_params) { { coupon: attributes_for(:coupon, code: "NEWYEAR10") }.to_json }
 
-      #   it "should update a coup"
-      # end
+        it "should update a coupon" do
+          patch url, headers: auth_header(user), params: correct_params
+
+          coupon.reload
+          expect(coupon.code).to eq "NEWYEAR10"
+        end
+
+        it "should returns status ok" do
+          patch url, headers: auth_header(user), params: correct_params
+
+          expect(response).to have_http_status(:ok)
+        end
+
+        it "should returns coupon an updated" do
+          patch url, headers: auth_header(user), params: correct_params
+          coupon.reload
+          expect(body_json["coupon"]).to contain_exactly *coupon.as_json(only: only_attr)
+        end
+      end
     end
+
+    # context "DELETE /coupons/#{id}" do
+    #   let!(:coupon) { create(:coupon, code: "NATAL10") }
+    #   let(:url) { "/admin/v1/coupons/#{coupon.id}" }
+
+    #   it "shoudl delete an coupon" do
+    #     expect do
+    #       delete url, headers: auth_header(user)
+    #     end.to change(Coupon, :count).by(-1)
+    #   end
+    # end
   end
 end
