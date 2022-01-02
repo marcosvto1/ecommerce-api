@@ -7,16 +7,16 @@ module Admin::V1
     def create
       @user = User.create
       @user.attributes = user_params
-      save_user!
-      render :show, status: :created
+      save_user! :created
     end
 
     private
 
-    def save_user!
+    def save_user!(status = :ok)
       @user.save!
+      render :show, status: status
     rescue
-      render_error fields: user.errors.messages
+      render_error fields: @user.errors.messages
     end
 
     def user_params

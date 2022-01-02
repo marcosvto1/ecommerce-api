@@ -45,6 +45,25 @@ RSpec.describe "Admin::V1::User" do
     end
 
     context "when invalid params" do
+      let(:incorrect_params) { { user: attributes_for(:user, email: nil) }.to_json }
+
+      it "should not save a new user" do
+        expect do
+          post url, headers: auth_header(users.first), params: incorrect_params
+        end.to_not change(User, :count)
+      end
+
+      it "should returns erros message" do
+        post url, headers: auth_header(users.first), params: incorrect_params
+
+        expect(body_json["errors"]["fields"]).to have_key("email")
+      end
+
+      it "should return :unprocessable_entity status" do
+        post url, headers: auth_header(users.first), params: incorrect_params
+
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
     end
   end
 end
