@@ -131,5 +131,12 @@ RSpec.describe "Admin::V1::SystemRequirement as :admin", type: :request do
       delete url, headers: auth_header(user)
       expect(body_json).to_not be_present
     end
+
+    it "should returns error if has games associated" do
+      games = create_list(:game, 2, system_requirement: system_requirement)
+      delete url, headers: auth_header(user)
+
+      expect(body_json["errors"]["fields"]).to have_key("base")
+    end
   end
 end

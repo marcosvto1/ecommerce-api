@@ -8,6 +8,8 @@ class SystemRequirement < ApplicationRecord
 
   has_many :games, dependent: :restrict_with_error
 
+  validates_associated :games
+
   include NameSearchable
   include Paginatable
 end
