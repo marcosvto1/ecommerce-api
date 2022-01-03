@@ -93,7 +93,6 @@ RSpec.describe "Admin::V1::User" do
       let(:correct_params) { { user: attributes_for(:user, email: "teste2@teste.com") }.to_json }
       it "should update a user" do
         patch url, headers: auth_header(users.last), params: correct_params
-
         user_saved.reload
 
         expect(user_saved.email).to eq "teste2@teste.com"
@@ -103,11 +102,13 @@ RSpec.describe "Admin::V1::User" do
         patch url, headers: auth_header(users.last), params: correct_params
         user_saved.reload
         expected_user = user_saved.as_json only: %i(id name email profile)
+
         expect(body_json["user"]).to eq expected_user
       end
 
       it "should return status :ok" do
         patch url, headers: auth_header(users.last), params: correct_params
+
         expect(response).to have_http_status(:ok)
       end
     end
@@ -121,6 +122,46 @@ RSpec.describe "Admin::V1::User" do
         user_saved.reload
         expect(user_saved.email).to eq "teste@teste.com"
       end
+
+      it "should return error message" do
+        patch url, headers: auth_header(users.last), params: incorect_params
+
+        expect(body_json["errors"]["fields"]).to have_key("email")
+      end
+
+      it "should return error if change email to email already in use" do
+        new_user_attr = User.new
+        new_user_attr.attributes = attributes_for(:user, email: "mail@mail.com")
+        new_user_attr.save!
+
+        user_with_email_already_in_use = JSON.parse(incorect_params)
+        user_with_email_already_in_use["user"]["email"] = "mail@mail.com"
+
+        patch url, headers: auth_header(users.last), params: user_with_email_already_in_use.to_json
+
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+  end
+
+  context "DELETE /users" do
+    let!(:user) { create(:user) }
+    let(:url) { "/admin/v1/users/#{user.id}" }
+
+    it "should remove an user" do
+      expect do
+        delete url, headers: auth_header(users.last)
+      end.to change(User, :count).by(-1)
+    end
+
+    it "should does not returns any body content" do
+      delete url, headers: auth_header(users.last)
+      expect(body_json).to_not be_present
+    end
+
+    it "should return status :no_content" do
+      delete url, headers: auth_header(users.last)
+      expect(response).to have_http_status(:no_content)
     end
   end
 end
