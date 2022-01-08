@@ -5,14 +5,112 @@ RSpec.describe "Admin::V1::Categories as :admin", type: :request do
 
   context "GET /categories" do
     let(:url) { "/admin/v1/categories" }
-    let!(:categories) { create_list(:category, 5) }
+    let!(:categories) { create_list(:category, 10) }
 
-    it "return all categories" do
-      get url, headers: auth_header(user)
-      expect(body_json["categories"]).to contain_exactly *categories.as_json(only: %i(id name))
+    context "without any params" do
+      it "should returns 10 Categories" do
+        get url, headers: auth_header(user)
+
+        expect(body_json["categories"].count).to eq 10
+      end
+
+      it "should return 10 first categories" do
+        get url, headers: auth_header(user)
+        expected_categories = categories[0..9].as_json only: %i(id name)
+
+        expect(body_json["categories"]).to contain_exactly *expected_categories
+      end
+
+      it "return success status" do
+        get url, headers: auth_header(user)
+
+        expect(response).to have_http_status(:ok)
+      end
     end
 
-    it "return success status" do
+    context "with search[name] params" do
+      let!(:search_name_categories) do
+        categories = []
+        15.times { |n| categories << create(:category, name: "Search #{n + 1}") }
+        categories
+      end
+
+      let(:search_params) { { search: { name: "Search" } } }
+
+      it "should returns only seached categories limited by default pagination" do
+        get url, headers: auth_header(user), params: search_params
+        expected_categories = search_name_categories[0..9].map do |category|
+          category.as_json only: %i(id name)
+        end
+
+        expect(body_json["categories"]).to contain_exactly *expected_categories
+      end
+
+      it "should return success status" do
+        get url, headers: auth_header(user), params: search_params
+
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context "with pagination params" do
+      let(:page) { 2 }
+      let(:length) { 5 }
+
+      let(:pagination_params) { { page: page, length: length } }
+
+      it "should returns categories size by :length" do
+        get url, headers: auth_header(user), params: pagination_params
+
+        expect(body_json["categories"].count).to eq length
+      end
+
+      it "should returns categories limited by pagination" do
+        get url, headers: auth_header(user), params: pagination_params
+
+        expected_categories = categories[5..9].as_json only: %i(id name)
+
+        expect(body_json["categories"]).to contain_exactly *expected_categories
+      end
+
+      it "should return success status" do
+        get url, headers: auth_header(user), params: pagination_params
+
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context "when order params" do
+      let(:order_params) { { order: { name: "desc" } } }
+
+      it "should returns ordered categories limited by default pagination" do
+        get url, headers: auth_header(user), params: order_params
+        categories.sort! { |a, b| b[:name] <=> a[:name] }
+        expected_categories = categories[0..9].as_json only: %i(id name)
+
+        expect(body_json["categories"]).to contain_exactly *expected_categories
+      end
+
+      it "should return success status" do
+        get url, headers: auth_header(user), params: order_params
+
+        expect(response).to have_http_status(:ok)
+      end
+    end
+  end
+
+  context "GET /categories/id" do
+    let!(:category) { create(:category) }
+    let(:url) { "/admin/v1/categories/#{category.id}" }
+
+    it "should return requested category" do
+      get url, headers: auth_header(user)
+      expected_category = category.as_json only: %i(id name)
+
+      expect(body_json["category"]).to eq expected_category
+    end
+
+    it "should returns success status" do
       get url, headers: auth_header(user)
 
       expect(response).to have_http_status(:ok)
@@ -57,7 +155,6 @@ RSpec.describe "Admin::V1::Categories as :admin", type: :request do
 
       it "returns error messages" do
         post url, headers: auth_header(user), params: category_invalid_param
-        puts body_json["errors"]["fields"]
         expect(body_json["errors"]["fields"]).to have_key("name")
         #expect(body_json["errors"]["fields"]).to have_key("processor")
       end
