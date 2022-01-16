@@ -17,7 +17,6 @@ describe Admin::ModelLoadingService do
         system_requirements
       end
 
-
       let(:params) do
         { search: { name: "Search", video_board: "GeFor" }, order: { name: :desc }, page: 2, length: 4 }
       end
@@ -114,7 +113,6 @@ describe Admin::ModelLoadingService do
         service.call
         expect(service.pagination[:total_pages]).to eq 2
       end
-
     end
   end
 end

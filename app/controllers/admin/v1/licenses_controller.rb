@@ -3,7 +3,8 @@ module Admin::V1
     before_action :load_license, only: [:show, :destroy, :update]
 
     def index
-      @loading_service = Admin::ModelLoadingService.new(License.all, searchable_params)
+      game_licenses = License.where(game_id: params[:game_id])
+      @loading_service = Admin::ModelLoadingService.new(game_licenses, searchable_params)
       @loading_service.call
     end
 
@@ -15,17 +16,30 @@ module Admin::V1
       save_license! :created
     end
 
+    def update
+      @license.attributes = license_params
+      save_license!
+    end
+
+    def destroy
+      @license = License.destroy(params[:id])
+      @license.destroy!
+    rescue StandardError
+      render_error fields: @license.errors.messages
+    end
+
     private
 
     def license_params
-      return {} unless params.has_key?(:license)
+      return {} unless params.key?(:license)
+
       params.require(:license).permit(:id, :key, :game_id, :status, :platform)
     end
 
     def save_license!(status = :ok)
       @license.save!
       render :show, status: status
-    rescue
+    rescue StandardError
       render_error fields: @license.errors.messages
     end
 
