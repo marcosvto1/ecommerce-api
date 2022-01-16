@@ -1,6 +1,8 @@
 require "rails_helper"
 
 RSpec.describe Admin::ProductSavingService, type: :model do
+  let!(:user) { create(:user) }
+
   context "when #call" do
     context "sending loaded product" do
       let!(:new_categories) { create_list(:category, 2) }

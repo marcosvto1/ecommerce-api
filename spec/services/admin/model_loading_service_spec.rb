@@ -17,9 +17,9 @@ describe Admin::ModelLoadingService do
 
       it "should returns right :length following pagination" do
         service = described_class.new(Category.all, params)
-        result_categories = service.call
+        service.call
 
-        expect(result_categories.count).to eq 4
+        expect(service.records.count).to eq 4
       end
 
       it "should returns following search, order and pagination" do
@@ -30,28 +30,80 @@ describe Admin::ModelLoadingService do
 
         search_categories.sort! { |a, b| b[:name] <=> a[:name] }
         service = described_class.new(Category.all, params)
-        result_categories = service.call
-        expect_categories = search_categories[4..7]
+        service.call
+        expected_categories = search_categories[4..7]
 
-        expect(result_categories).to contain_exactly *expect_categories
+        expect(service.records).to contain_exactly *expected_categories
       end
+
+      it "sets right :page" do
+        service = described_class.new(Category.all, params)
+        service.call
+
+        expect(service.pagination[:page]).to eq 2
+      end
+
+      it "sets right :length" do
+        service = described_class.new(Category.all, params)
+        service.call
+
+        expect(service.pagination[:length]).to eq 4
+      end
+
+      it "sets right :total" do
+        service = described_class.new(Category.all, params)
+        service.call
+
+        expect(service.pagination[:total]).to eq 15
+      end
+
+      it "sets rigth :total_pages" do
+        service = described_class.new(Category.all, params)
+        service.call
+
+        expect(service.pagination[:total_pages]).to eq 4
+      end
+
     end
 
     context "when params are not present" do
       it "should returns defualt length pagination" do
         service = described_class.new(Category.all, nil)
-        result_categories = service.call
-
-        expect(result_categories.count).to eq 10
+        service.call
+        expect(service.records.count).to eq 10
       end
 
       it "should return first 10 records" do
         service = described_class.new(Category.all, nil)
-        result_categories = service.call
+        service.call
         expected_categories = categories[0..9]
-
-        expect(result_categories).to contain_exactly *expected_categories
+        expect(service.records).to contain_exactly *expected_categories
       end
+
+      it "should sets right :page" do
+        service = described_class.new(Category.all, nil)
+        service.call
+        expect(service.pagination[:page]).to eq 1
+      end
+
+      it "should sets right :length" do
+        service = described_class.new(Category.all, nil)
+        service.call
+        expect(service.pagination[:length]).to eq 10
+      end
+
+      it "should sets right :total" do
+        service = described_class.new(Category.all, nil)
+        service.call
+        expect(service.pagination[:total]).to eq 15
+      end
+
+      it "should sets right :total_pages" do
+        service = described_class.new(Category.all, nil)
+        service.call
+        expect(service.pagination[:total_pages]).to eq 2
+      end
+
     end
   end
 end
