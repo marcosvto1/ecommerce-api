@@ -34,8 +34,8 @@ if Rails.env.development? || Rails.env.test?
       50.times do
         game = Game.all[0..5].sample
         status = [:available, :in_use, :inactive].sample
-        platform = [:steam, :battle_net, :origin]
-        create(:license, status: status, platform:platform, game: game)
+        platform = [:steam, :battle_net, :origin].sample
+        create(:license, status: status, platform: platform, game: game)
       end
     end
   end
