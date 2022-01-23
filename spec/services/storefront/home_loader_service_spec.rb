@@ -30,6 +30,13 @@ describe Storefront::HomeLoaderService do
           expected_products & featured_products == expected_products
         end
       end
+
+      it "should not returns unavailiable or non-featured products" do
+        service = described_class.new
+        service.call
+
+        expect(service.featured).to_not include(unavailable_products, non_featured_products)
+      end
     end
   end
 end
