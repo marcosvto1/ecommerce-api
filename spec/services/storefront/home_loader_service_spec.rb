@@ -21,6 +21,15 @@ describe Storefront::HomeLoaderService do
 
         expect(service.featured.count).to eq 4
       end
+
+      it "should returns random featured availiable product" do
+        service = described_class.new
+        service.call
+
+        expect(service.featured).to satisfy do |expected_products|
+          expected_products & featured_products == expected_products
+        end
+      end
     end
   end
 end
