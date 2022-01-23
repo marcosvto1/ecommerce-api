@@ -4,7 +4,7 @@ class Product < ApplicationRecord
   validates :description, presence: true
   validates :price, presence: true, numericality: { greater_than: 0 }
   validates :status, presence: true
-  validates :featured, presence: true
+  validates :featured, presence: true, if: -> { featured.nil? }
 
   has_many :product_categories, dependent: :destroy
   has_many :categories, through: :product_categories
@@ -14,7 +14,7 @@ class Product < ApplicationRecord
 
   enum status: {
     available: 1,
-    unavailable: 2
+    unavailable: 2,
   }
 
   include LikeSearchable
