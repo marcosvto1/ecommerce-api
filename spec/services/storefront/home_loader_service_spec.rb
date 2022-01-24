@@ -55,13 +55,22 @@ describe Storefront::HomeLoaderService do
           game = create(:game, release_date: rand(1 - 6).days.ago)
           products << create(:product, productable: game)
         end
+        products
       end
 
       it "should returns 4 records" do
         service = described_class.new
         service.call
-        byebug
         expect(service.last_releases.count).to eq 4
+      end
+
+      it "returns random last released available products" do
+        service = described_class.new
+        service.call
+        expect(service.last_releases).to satisfy do |expected_products|
+          byebug
+          expected_products & last_release_products == expected_products
+        end
       end
     end
   end
