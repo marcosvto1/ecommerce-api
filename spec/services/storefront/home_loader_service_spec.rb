@@ -68,9 +68,39 @@ describe Storefront::HomeLoaderService do
         service = described_class.new
         service.call
         expect(service.last_releases).to satisfy do |expected_products|
-          byebug
           expected_products & last_release_products == expected_products
         end
+      end
+
+      it "does not return non-last released or unavailable products" do
+        service = described_class.new
+        service.call
+        expect(service.last_releases).to_not include(unavailable_products, non_last_release_products)
+      end
+    end
+
+    context "on cheapest products" do
+      let!(:non_cheapest) { create_list(:product, 5, price: 110.00) }
+      let!(:cheapest_products) { create_list(:product, 5, price: 5.00) }
+
+      it "should returns 4 records" do
+        service = described_class.new
+        service.call
+        expect(service.cheapest.count).to eq 4
+      end
+
+      it "should returns cheapest available products" do
+        service = described_class.new
+        service.call
+        expect(service.cheapest).to satisfy do |expected_products|
+          expected_products & cheapest_products == expected_products
+        end
+      end
+
+      it "should returns non-cheapest or unavailable products" do
+        service = described_class.new
+        service.call
+        expect(service.cheapest).to_not include(unavailable_products, non_cheapest)
       end
     end
   end
