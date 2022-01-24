@@ -25,7 +25,7 @@ module Storefront
     end
 
     def get_releases_games
-      @last_releases
+      @last_releases = @games.where("games.release_date > ?", MIN_RELASE_DAYS.days.ago).sample(QUANTITY_OF_RECORDS_PER_GROUP)
     end
 
     def get_cheapest_games

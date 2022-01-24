@@ -38,5 +38,31 @@ describe Storefront::HomeLoaderService do
         expect(service.featured).to_not include(unavailable_products, non_featured_products)
       end
     end
+
+    context "on recently released products using 7 days default" do
+      let!(:non_last_release_products) do
+        products = []
+        5.times do
+          game = create(:game, release_date: 8.days.ago)
+          products << create(:product, productable: game)
+        end
+        products
+      end
+
+      let!(:last_release_products) do
+        products = []
+        5.times do
+          game = create(:game, release_date: rand(1 - 6).days.ago)
+          products << create(:product, productable: game)
+        end
+      end
+
+      it "should returns 4 records" do
+        service = described_class.new
+        service.call
+        byebug
+        expect(service.last_releases.count).to eq 4
+      end
+    end
   end
 end
