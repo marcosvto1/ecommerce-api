@@ -17,6 +17,8 @@ RSpec.describe Product, type: :model do
 
   it { is_expected.to validate_presence_of(:image) }
 
+  it { is_expected.to have_many(:wish_items)}
+
   it_has_behavior_of "like searchable concern", :product, :name
   it_behaves_like "paginatable concern", :product
 
